@@ -19,7 +19,7 @@ module GoogleDrive
         include(Util)
 
         def initialize(session, spreadsheet, worksheet_feed_entry) #:nodoc:
-          
+
           @session = session
           @spreadsheet = spreadsheet
           set_worksheet_feed_entry(worksheet_feed_entry)
@@ -29,7 +29,7 @@ module GoogleDrive
           @numeric_values = nil
           @modified = Set.new()
           @list = nil
-          
+
         end
 
         # Nokogiri::XML::Element object of the <entry> element in a worksheets feed.
@@ -105,7 +105,7 @@ module GoogleDrive
         end
 
         # Updates content of the cell.
-        # Arguments in the bracket must be either (row number, column number) or cell name. 
+        # Arguments in the bracket must be either (row number, column number) or cell name.
         # Note that update is not sent to the server until you call save().
         # Top-left cell is [1, 1].
         #
@@ -124,13 +124,8 @@ module GoogleDrive
           @modified.add([row, col])
           self.max_rows = row if row > @max_rows
           self.max_cols = col if col > @max_cols
-          if value.empty?
-            @num_rows = nil
-            @num_cols = nil
-          else
-            @num_rows = row if row > num_rows
-            @num_cols = col if col > num_cols
-          end
+          @num_rows = row if row > num_rows
+          @num_cols = col if col > num_cols
         end
 
         # Updates cells in a rectangle area by a two-dimensional Array.
@@ -176,7 +171,7 @@ module GoogleDrive
           reload_cells() if !@cells
           return @numeric_values[[row, col]]
         end
-        
+
         # Row number of the bottom-most non-empty row.
         def num_rows
           reload_cells() if !@cells
@@ -313,7 +308,7 @@ module GoogleDrive
 
         # Saves your changes made by []=, etc. to the server.
         def save()
-          
+
           sent = false
 
           if @meta_modified
@@ -408,9 +403,9 @@ module GoogleDrive
             sent = true
 
           end
-          
+
           return sent
-          
+
         end
 
         # Calls save() and reload().
@@ -436,7 +431,7 @@ module GoogleDrive
           return @worksheet_feed_entry.css(
             "link[rel='http://schemas.google.com/spreadsheets/2006#listfeed']")[0]["href"]
         end
-        
+
         # Provides access to cells using column names, assuming the first row contains column
         # names. Returned object is GoogleDrive::List which you can use mostly as
         # Array of Hash.
@@ -452,7 +447,7 @@ module GoogleDrive
         def list
           return @list ||= List.new(self)
         end
-        
+
         # Returns a [row, col] pair for a cell name string.
         # e.g.
         #   worksheet.cell_name_to_row_col("C2")  #=> [2, 3]
@@ -479,7 +474,7 @@ module GoogleDrive
           fields[:title] = @title if @title
           return "\#<%p %s>" % [self.class, fields.map(){ |k, v| "%s=%p" % [k, v] }.join(", ")]
         end
-        
+
       private
 
         def set_worksheet_feed_entry(entry)
@@ -490,7 +485,7 @@ module GoogleDrive
         end
 
         def reload_cells()
-          
+
           doc = @session.request(:get, self.cells_feed_url)
           @max_rows = doc.css("gs|rowCount").text.to_i()
           @max_cols = doc.css("gs|colCount").text.to_i()
@@ -529,7 +524,7 @@ module GoogleDrive
                 "Arguments must be either one String or two Integer's, but are %p" % [args])
           end
         end
-        
+
         def validate_cell_value(value)
           if value.include?("\x1a")
             raise(ArgumentError, "Contains invalid character \\x1a for xml: %p" % value)
@@ -537,5 +532,5 @@ module GoogleDrive
         end
 
     end
-    
+
 end
